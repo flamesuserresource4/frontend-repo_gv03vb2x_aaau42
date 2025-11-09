@@ -3,21 +3,22 @@ import GreetingHeader from './components/GreetingHeader';
 import StatsStrip from './components/StatsStrip';
 import QuickActions from './components/QuickActions';
 import DailyMoodCard from './components/DailyMoodCard';
-import PeerWallFeed from './components/PeerWallFeed';
 import HeroScene from './components/HeroScene';
-import JournalPanel from './components/JournalPanel';
 import MindfulZone from './components/MindfulZone';
 import GamesHub from './components/GamesHub';
-import MentraBotChat from './components/MentraBotChat';
-
-const API_BASE = import.meta.env.VITE_BACKEND_URL || '';
+import AuthGate from './components/AuthGate';
+import SupabaseBackedPeerWall from './components/SupabaseBackedPeerWall';
+import SupabaseBackedJournal from './components/SupabaseBackedJournal';
+import { supabase } from './lib/supabaseClient';
 
 function App() {
   const [nickname] = useState('Mentra Explorer');
   const [stats, setStats] = useState({ streak: 5, xp: 720, badges: 4 });
 
+  // Warm up (no-op if not using backend)
   useEffect(() => {
-    fetch(`${API_BASE}/`).catch(()=>{});
+    // If you want realtime in Peer Wall with Supabase, you could add it here
+    if (!supabase) return;
   }, []);
 
   const handleAction = (label) => {
@@ -38,52 +39,46 @@ function App() {
 
   const handleMoodSubmit = async ({ mood, note }) => {
     setStats((s) => ({ ...s, xp: s.xp + 10 }));
-    try {
-      await fetch(`${API_BASE}/moods`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: 'demo-user', mood, note }),
-      });
-    } catch (e) {}
+    // Optionally: write mood to Supabase via RPC/table
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
-      <div className="mx-auto max-w-6xl p-4 sm:p-6 space-y-6">
-        <HeroScene />
-        <GreetingHeader nickname={nickname} />
-        <StatsStrip streak={stats.streak} xp={stats.xp} badges={stats.badges} />
-        <QuickActions onAction={handleAction} />
+    <AuthGate>
+      {(user) => (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
+          <div className="mx-auto max-w-6xl p-4 sm:p-6 space-y-6">
+            <HeroScene />
+            <GreetingHeader nickname={nickname} />
+            <StatsStrip streak={stats.streak} xp={stats.xp} badges={stats.badges} />
+            <QuickActions onAction={handleAction} />
 
-        <section id="mood">
-          <DailyMoodCard onSubmit={handleMoodSubmit} />
-        </section>
+            <section id="mood">
+              <DailyMoodCard onSubmit={handleMoodSubmit} />
+            </section>
 
-        <section>
-          <JournalPanel />
-        </section>
+            <section>
+              <SupabaseBackedJournal user={user} />
+            </section>
 
-        <section>
-          <MindfulZone />
-        </section>
+            <section id="peer">
+              <SupabaseBackedPeerWall user={user} />
+            </section>
 
-        <section id="peer">
-          <PeerWallFeed />
-        </section>
+            <section>
+              <MindfulZone />
+            </section>
 
-        <section>
-          <GamesHub />
-        </section>
+            <section>
+              <GamesHub />
+            </section>
 
-        <section>
-          <MentraBotChat />
-        </section>
-
-        <footer className="text-center text-xs text-gray-500 py-6">
-          MentraCare • A calm space for mindful growth
-        </footer>
-      </div>
-    </div>
+            <footer className="text-center text-xs text-gray-500 py-6">
+              MentraCare • A calm space for mindful growth
+            </footer>
+          </div>
+        </div>
+      )}
+    </AuthGate>
   );
 }
 
