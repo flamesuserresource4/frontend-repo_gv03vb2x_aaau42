@@ -1,33 +1,35 @@
 import React from 'react';
 import { Rocket, Star, Home } from 'lucide-react';
 
-const actions = [
-  { label: 'Get Started', icon: Rocket },
-  { label: 'Highlights', icon: Star },
-  { label: 'Overview', icon: Home },
-];
+const ActionButton = ({ icon: Icon, label, href }) => (
+  <a
+    href={href}
+    onClick={(e) => {
+      const id = href.replace('#', '');
+      const el = document.getElementById(id);
+      if (el) {
+        e.preventDefault();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }}
+    className="group flex items-center gap-3 p-4 rounded-xl bg-white/5 ring-1 ring-white/10 text-white hover:bg-white/10 transition-colors"
+  >
+    <div className="h-10 w-10 rounded-lg bg-white/10 grid place-items-center group-hover:bg-white/15">
+      <Icon className="h-5 w-5" />
+    </div>
+    <div>
+      <div className="text-sm font-medium">{label}</div>
+      <div className="text-xs text-white/60">Jump to section</div>
+    </div>
+  </a>
+);
 
 export default function QuickActions() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-      {actions.map(({ label, icon: Icon }) => (
-        <button
-          key={label}
-          className="group rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur px-4 py-3 text-left shadow-sm hover:shadow md:hover:-translate-y-0.5 transition-all"
-          onClick={() => {
-            const id = label.toLowerCase().replace(/\s+/g, '-');
-            const el = document.getElementById(id);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 group-hover:bg-indigo-50 group-hover:text-indigo-600">
-              <Icon className="h-5 w-5" />
-            </span>
-            <span className="font-medium text-slate-900 dark:text-slate-100">{label}</span>
-          </div>
-        </button>
-      ))}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+      <ActionButton icon={Rocket} label="Get Started" href="#get-started" />
+      <ActionButton icon={Star} label="Highlights" href="#highlights" />
+      <ActionButton icon={Home} label="Overview" href="#overview" />
     </div>
   );
 }
