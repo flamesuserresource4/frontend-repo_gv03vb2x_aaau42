@@ -1,43 +1,26 @@
-import { useMemo } from 'react';
-import { Sun, Moon, CloudSun } from 'lucide-react';
+import React from 'react';
 
 function getGreeting() {
   const hour = new Date().getHours();
-  if (hour < 5) return { text: 'Good Night', icon: Moon };
-  if (hour < 12) return { text: 'Good Morning', icon: Sun };
-  if (hour < 18) return { text: 'Good Afternoon', icon: CloudSun };
-  return { text: 'Good Evening', icon: Moon };
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
 }
 
-export default function GreetingHeader({ nickname = 'Explorer' }) {
-  const { text, icon: Icon } = useMemo(() => getGreeting(), []);
-
-  const quotes = [
-    'Small steps today, strong mind tomorrow.',
-    'Your feelings are valid. Your growth is real.',
-    'Breathe in calm, breathe out stress.',
-    'You are doing better than you think.',
-  ];
-  const quote = useMemo(() => quotes[new Date().getDate() % quotes.length], []);
-
+export default function GreetingHeader({ name = 'Explorer' }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-indigo-500 via-purple-500 to-fuchsia-500 text-white shadow-lg">
-      <div className="absolute inset-0 opacity-20 pointer-events-none" aria-hidden>
-        <div className="absolute -top-10 -right-10 w-52 h-52 bg-white/20 blur-3xl rounded-full" />
-        <div className="absolute -bottom-12 -left-6 w-64 h-64 bg-white/10 blur-3xl rounded-full" />
+    <div className="w-full flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+      <div>
+        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+          {getGreeting()}, {name}
+        </h2>
+        <p className="text-slate-600 dark:text-slate-300 text-sm">Here’s what’s happening today.</p>
       </div>
-      <div className="relative flex items-start gap-4">
-        <div className="shrink-0 p-3 rounded-xl bg-white/20 backdrop-blur">
-          <Icon className="w-7 h-7" />
-        </div>
-        <div className="flex-1">
-          <h1 className="text-2xl sm:text-3xl font-semibold leading-tight">
-            {text}, {nickname} 👋
-          </h1>
-          <p className="mt-1 text-white/90 max-w-2xl">
-            {quote}
-          </p>
-        </div>
+      <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+        <span className="inline-flex items-center gap-1 rounded-full border border-slate-200/50 dark:border-slate-700 px-2 py-1">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          Status: Online
+        </span>
       </div>
     </div>
   );
